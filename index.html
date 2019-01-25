@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MAP Indication</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="shortcut icon" href="./favicon.png" type="image/x-icon">
+</head>
+<body>
+    <h1>MAP Indication</h1>
+    <p class="main">
+        <span>BT Network Status: </span>
+        <select id="status_selector"></select>
+        <label class="zoom_label" for="zoom_in">Zoomed in: <input type="checkbox" id="zoom_in"></label>
+    </p>
+    <div id="map_container">
+        <div id="map_board_wrapper">
+            <i id="icon-plug" class="icon fa fa-plug"></i>
+            <i id="icon-bluetooth" class="icon fa fa-bluetooth"></i>
+            <i id="icon-alert" class="icon fa fa-exclamation-triangle"></i>
+            <img src="./led_on.svg" alt="ground" id="groud_led" class="led">
+            <img src="./led_off.svg" alt="ground" id="status_led1" class="led">
+            <img src="./led_off.svg" alt="ground" id="status_led2" class="led">
+            <img src="./map.svg" alt="map board" id="map_board">
+        </div>
+    </div>
+    <script
+        src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous">
+    </script>
+    </script>
+    <script>
+        const STATUSES = {
+            OFF: 0,
+
+            BOOTING: 1,
+            CONNECTING: 2,
+            CONNECTED: 3,
+            DISCOVERING: 4,
+
+            DISCONNECTED: 21,
+            INCOMPATIBLE: 41,
+
+            IDENTIFY: 99,
+        };
+
+        const ERROR_STATUSES = [
+            STATUSES.DISCONNECTED,
+            STATUSES.INCOMPATIBLE,
+        ];
+
+        const BLINK_PATTERNS = {};
+        BLINK_PATTERNS[STATUSES.OFF] =               '__________';
+        BLINK_PATTERNS[STATUSES.BOOTING] =           '-_-_-_-_-_';
+        BLINK_PATTERNS[STATUSES.CONNECTING] =        '-_-_-_-_-_';
+        BLINK_PATTERNS[STATUSES.CONNECTED] =         '---------_';
+        BLINK_PATTERNS[STATUSES.DISCOVERING] =       '---------_';
+        BLINK_PATTERNS[STATUSES.DISCONNECTED] =      '-_-_-_-_-_';
+        BLINK_PATTERNS[STATUSES.INCOMPATIBLE] =      '-_-_-_-_-_';
+        BLINK_PATTERNS[STATUSES.INCOMPATIBLE] =      '-_-_-_-_-_';
+
+        const LED_SUFFIX_ON = '_on';
+        const LED_SUFFIX_OFF = '_off';
+
+        var current_frame = 0;
+        var current_status = STATUSES.OFF;
+
+        var map_container = $('#map_container');
+        var map_board_wrapper = $('#map_board_wrapper');
+
+        const AbstractLED = {
+            on: function() {
+                if (!this.target) {
+                    console.warn('Abstract LED.on');
+                } else {
+                    let current_source = $(this.target).attr('src');
+                    $(this.target).attr(
+                        'src',
+                        current_source.replace(LED_SUFFIX_OFF, LED_SUFFIX_ON)
+                    );
+                }
+            },
+            off: function() {
+                if (!this.target) {
+                    console.warn('Abstract LED.on');
+                } else {
+                    let current_source = $(this.target).attr('src');
+                    $(this.target).attr(
+                        'src',
+                        current_source.replace(LED_SUFFIX_ON, LED_SUFFIX_OFF)
+                    );
+                }
+            },
+        };
+
+        const STATUS_LED1 = Object.assign(
+            {target: $('#status_led1')},
+            AbstractLED
+        )
+
+        const STATUS_LED2 = Object.assign(
+            {target: $('#status_led2')},
+            AbstractLED
+        )
+
+        const init_status_selector = function(target, statuses) {
+            let selector = $(target);
+            for (status in STATUSES) {
+                let option = $('<option>');
+                option.text(status.toString());
+                option.attr('value', STATUSES[status]);
+                option = option.get(0);
+                selector.append(option);
+            };
+            selector.on('change', function() {
+                current_status = parseInt($(this).val());
+            });
+        };
+
+        const init_zoom = function(target, zoom_target_el) {
+            let zoom_checkbox = $(target);
+            let zoom_target = $(zoom_target_el);
+            zoom_checkbox.on('change', function() {
+                if (zoom_checkbox.is(':checked')) {
+                    zoom_target.addClass('zoomed');
+                } else {
+                    zoom_target.removeClass('zoomed');
+                }
+                console.log('zoom-zoom');
+            });
+        };
+
+        const draw_frame = function() {
+            // console.log('Frame', current_frame + 1);
+            current_frame++;
+            if (current_status == STATUSES.IDENTIFY) {
+                current_frame = current_frame % 20;
+                if (current_frame % 5 > 2) {
+                    STATUS_LED1.on();
+                    STATUS_LED2.off();
+                } else {
+                    STATUS_LED1.off();
+                    STATUS_LED2.on();
+                }
+                return;
+            } else {
+                current_frame = current_frame % 10;
+            }
+
+            if (ERROR_STATUSES.includes(current_status)) {
+                let current_pattern = BLINK_PATTERNS[current_status];
+                if (current_pattern[current_frame] == '-') {
+                    STATUS_LED2.on();
+                } else {
+                    STATUS_LED2.off();
+                };
+                current_pattern = BLINK_PATTERNS[parseInt(current_status / 10)];
+                if (current_pattern[current_frame] == '-') {
+                    STATUS_LED1.on();
+                } else {
+                    STATUS_LED1.off();
+                };
+            } else {
+                let current_pattern = BLINK_PATTERNS[current_status];
+                if (current_pattern[current_frame] == '-') {
+                    STATUS_LED1.on();
+                } else {
+                    STATUS_LED1.off();
+                };
+                STATUS_LED2.off();
+            }
+        };
+
+        $(document).ready(function() {
+            main()
+        });
+
+        const main = function() {
+            let status_selector = $('#status_selector').get(0);
+            let zoom_checkbox = $('#zoom_in').get(0);
+            init_status_selector(status_selector, STATUSES);
+            init_zoom(zoom_checkbox, map_board_wrapper);
+            setInterval(draw_frame, 100);
+        };
+    </script>
+</body>
+</html>

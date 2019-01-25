@@ -1,0 +1,104 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    font-family: monospace;
+}
+
+html {
+    height: 100%;
+
+}
+
+body {
+    padding: 4px;
+    width: auto;
+    min-height: calc(100% - 8px);
+}
+
+h1,
+.main {
+    padding-left: 10%;
+}
+
+.zoom_label {
+    padding: 4px 10px;
+    background: #f2f2f2;
+}
+
+#zoom_in {
+    vertical-align: sub;
+}
+
+#map_container {
+    max-width: 600px;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+#map_board_wrapper {
+    position: relative;
+    width: 100%;
+    transform: scale(1) translateZ(0);
+    transform-origin: top left;
+    transition: all 1.2s ease-in-out;
+}
+
+#map_board_wrapper.zoomed {
+    transform: scale(3.5);
+}
+
+#map_board {
+    width: 100%;
+}
+
+.icon {
+    color: white;
+    position: absolute;
+    top: 40px;
+    font-size: 0.8em !important;
+}
+
+.led {
+    position: absolute;
+    top: 10px;
+    width: 27px;
+    height: 27px;
+    /* border: 1px solid red; */
+}
+
+#groud_led {
+    left: 9.0%;
+}
+
+#status_led1 {
+    left: 12.17%;
+}
+
+#status_led2 {
+    left: 15.33%;
+}
+
+#icon-plug {
+    left: 9.67%;
+}
+
+#icon-bluetooth {
+    left: 13.17%;
+}
+
+#icon-alert {
+    left: 16.17%;
+}
+
+@media screen and (max-width: 600px) {
+    .led {
+        width: 20px;
+        height: 20px;
+    }
+
+    .icon {
+        font-size: 0.64em !important;
+    }
+}
