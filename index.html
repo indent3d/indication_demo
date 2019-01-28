@@ -46,7 +46,7 @@
             DISCOVERING: 4,
 
             DISCONNECTED: 21,
-            INCOMPATIBLE: 41,
+            INCOMPATIBLE: 31,
 
             IDENTIFY: 99,
         };
@@ -61,9 +61,8 @@
         BLINK_PATTERNS[STATUSES.BOOTING] =           '-_-_-_-_-_';
         BLINK_PATTERNS[STATUSES.CONNECTING] =        '-_-_-_-_-_';
         BLINK_PATTERNS[STATUSES.CONNECTED] =         '---------_';
-        BLINK_PATTERNS[STATUSES.DISCOVERING] =       '---------_';
+        BLINK_PATTERNS[STATUSES.DISCOVERING] =       '-_-_-_-_-_';
         BLINK_PATTERNS[STATUSES.DISCONNECTED] =      '-_-_-_-_-_';
-        BLINK_PATTERNS[STATUSES.INCOMPATIBLE] =      '-_-_-_-_-_';
         BLINK_PATTERNS[STATUSES.INCOMPATIBLE] =      '-_-_-_-_-_';
 
         const LED_SUFFIX_ON = '_on';
