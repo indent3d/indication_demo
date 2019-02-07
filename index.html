@@ -18,9 +18,13 @@
     </p>
     <div id="map_container">
         <div id="map_board_wrapper">
-            <i id="icon-plug" class="icon fa fa-plug"></i>
-            <i id="icon-bluetooth" class="icon fa fa-bluetooth"></i>
-            <i id="icon-alert" class="icon fa fa-exclamation-triangle"></i>
+            <i id="icon_debug1" class="icon fa fa-microchip"> 1</i>
+            <i id="icon_debug2" class="icon fa fa-microchip"> 2</i>
+            <i id="icon_plug" class="icon fa fa-plug"></i>
+            <i id="icon_bluetooth" class="icon fa fa-bluetooth"></i>
+            <i id="icon_alert" class="icon fa fa-exclamation-triangle"></i>
+            <img src="./led_off.svg" alt="ground" id="coord_debug1" class="led coordinator_led">
+            <img src="./led_off.svg" alt="ground" id="coord_debug2" class="led coordinator_led">
             <img src="./led_on.svg" alt="ground" id="groud_led" class="led">
             <img src="./led_off.svg" alt="ground" id="status_led1" class="led">
             <img src="./led_off.svg" alt="ground" id="status_led2" class="led">
@@ -102,12 +106,22 @@
         const STATUS_LED1 = Object.assign(
             {target: $('#status_led1')},
             AbstractLED
-        )
+        );
 
         const STATUS_LED2 = Object.assign(
             {target: $('#status_led2')},
             AbstractLED
-        )
+        );
+
+        const COORD_LED1 = Object.assign(
+            {target: $('#coord_debug1')},
+            AbstractLED
+        );
+
+        const COORD_LED2 = Object.assign(
+            {target: $('#coord_debug2')},
+            AbstractLED
+        );
 
         const init_status_selector = function(target, statuses) {
             let selector = $(target);
