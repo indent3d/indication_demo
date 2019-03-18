@@ -20,7 +20,7 @@ body {
 h1,
 .main,
 .control_group {
-    padding-left: 10%;
+    padding: 0 10%;
 }
 
 .control_group {
@@ -144,6 +144,12 @@ h1,
     .led {
         width: 20px;
         height: 20px;
+    }
+
+    h1,
+    .main,
+    .control_group {
+        padding: 0;
     }
 
     .icon {
