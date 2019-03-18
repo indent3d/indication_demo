@@ -24,6 +24,14 @@
             <label class="control_label" for="identify_on">Identify ON <input type="checkbox" id="identify_on"></label>
             <label class="control_label" for="zoom_in">Zoomed in: <input type="checkbox" id="zoom_in"></label>
         </div>
+        <div class="control_group">
+            <span>Coordinator boot state: </span>
+            <select id="crd_app_status_selector"></select>
+        </div>
+        <div class="control_group">
+            <span>Coordinator communication (UART interface): </span>
+            <select id="crd_comm_status_selector"></select>
+        </div>
     </p>
     <div id="map_container">
         <div id="map_board_wrapper">
@@ -54,6 +62,7 @@
         const LED_OFF  = '__________';
         const LED_FAST_BLINK  = '-_-_-_-_-_';
         const LED_SLOW_BLINK  = '---------_';
+        const LED_HALF_BLINK  = '-----_____';
 
         const LAYER_STATUSES = {
             BOOTING: 1,
@@ -86,15 +95,38 @@
         BT_STATUSES_PATTERNS[BT_PROCESS_STATUSES.OFF] = LED_FAST_BLINK;
         BT_STATUSES_PATTERNS[BT_PROCESS_STATUSES.ON] = LED_ON;
 
+        const CRD_APP_STATUSES = {
+            BOOTLOADER: 1,
+            APP: 2,
+        };
+
+        const CRD_APP_STATUSES_PATTERNS = {};
+        CRD_APP_STATUSES_PATTERNS[CRD_APP_STATUSES.BOOTLOADER] = LED_HALF_BLINK;
+        CRD_APP_STATUSES_PATTERNS[CRD_APP_STATUSES.APP] = LED_ON;
+
+        const CRD_COMM_STATUSES = {
+            OK: 1,
+            FAILED: 2,
+        };
+
+        const CRD_COMM_STATUSES_PATTERNS = {};
+        CRD_COMM_STATUSES_PATTERNS[CRD_COMM_STATUSES.FAILED] = LED_OFF;
+        CRD_COMM_STATUSES_PATTERNS[CRD_COMM_STATUSES.OK] = LED_ON;
+
         const LED_SUFFIX_ON = '_on';
         const LED_SUFFIX_OFF = '_off';
 
         var current_frame = 0;
         var UPPER_STATUS_NAME = '_upper';
         var LOWER_STATUS_NAME = '_lower';
+        var CRD_APP_STATUS_NAME = '_crd_app';
+        var CRD_COMM_STATUS_NAME = '_crd_comm';
+
         var current_status = {};
         current_status[UPPER_STATUS_NAME] = LAYER_STATUSES.BOOTING;
         current_status[LOWER_STATUS_NAME] = BT_PROCESS_STATUSES.ON;
+        current_status[CRD_APP_STATUS_NAME] = CRD_APP_STATUSES.BOOTLOADER;
+        current_status[CRD_COMM_STATUS_NAME] = CRD_COMM_STATUSES.OK;
         var pre_identify_status = current_status[UPPER_STATUS_NAME];
 
         var map_container = $('#map_container');
@@ -187,9 +219,7 @@
             });
         };
 
-        const draw_frame = function() {
-            // console.log('Frame', current_frame + 1);
-            current_frame++;
+        const draw_app_leds = function(current_frame) {
             if (current_status[UPPER_STATUS_NAME] == LAYER_STATUSES.IDENTIFY) {
                 current_frame = current_frame % 20;
                 if (current_frame % 5 > 2) {
@@ -220,6 +250,33 @@
             };
         };
 
+
+        const draw_crd_leds = function(current_frame) {
+            let crd_app_status = current_status[CRD_APP_STATUS_NAME];
+            let current_crd_app_pattern = CRD_APP_STATUSES_PATTERNS[crd_app_status];
+            if (current_crd_app_pattern[current_frame] == '-') {
+                COORD_LED1.on();
+            } else {
+                COORD_LED1.off();
+            };
+
+            let crd_comm_status = current_status[CRD_COMM_STATUS_NAME];
+            let current_crd_comm_pattern = CRD_COMM_STATUSES_PATTERNS[crd_comm_status];
+            if (current_crd_comm_pattern[current_frame] == '-') {
+                COORD_LED2.on();
+            } else {
+                COORD_LED2.off();
+            };
+        };
+
+        const draw_frame = function() {
+            // console.log('Frame', current_frame + 1);
+            current_frame++;
+            current_frame = current_frame % 10;
+            draw_app_leds(current_frame);
+            draw_crd_leds(current_frame);
+        };
+
         $(document).ready(function() {
             main();
         });
@@ -233,6 +290,10 @@
             init_zoom(zoom_checkbox, map_board_wrapper);
             let identify_checkbox = $('#identify_on').get(0);
             init_identify(identify_checkbox, upper_status_selector);
+            let crd_app_status_selector = $('#crd_app_status_selector').get(0);
+            init_status_selector(crd_app_status_selector, CRD_APP_STATUSES, CRD_APP_STATUS_NAME);
+            let crd_comm_status_selector = $('#crd_comm_status_selector').get(0);
+            init_status_selector(crd_comm_status_selector, CRD_COMM_STATUSES, CRD_COMM_STATUS_NAME);
             setInterval(draw_frame, 100);
         };
     </script>
