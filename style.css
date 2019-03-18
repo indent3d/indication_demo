@@ -79,17 +79,17 @@ h1,
     transform: rotate(90deg);
 }
 
-#coord_debug1,
-#coord_debug2 {
+#coord_app,
+#coord_comm {
     top: 50%;
 }
 
-#coord_debug1 {
+#coord_app {
     left: calc(35% - 27px / 2);
 }
 
 
-#coord_debug2 {
+#coord_comm {
     left: calc(65% - 27px / 2);
 }
 
@@ -111,17 +111,18 @@ h1,
     left: calc(60% - 27px / 2);
 }
 
-#icon_debug1,
-#icon_debug2 {
+#icon_crd_app,
+#icon_crd_comm {
     top: 57%;
 }
 
-#icon_debug1 {
-    left: calc(65% - 6px);
+#icon_crd_app {
+    left: calc(35% - 6px);
 }
 
-#icon_debug2 {
-    left: calc(35% - 6px);
+#icon_crd_comm {
+    transform: rotate(90deg);
+    left: calc(65% - 6px);
 }
 
 #icon_plug {
@@ -149,12 +150,12 @@ h1,
         font-size: 0.64em !important;
     }
 
-    #icon_debug1 {
-        left: calc(65% - 8px);
+    #icon_crd_app {
+        left: calc(35% - 8px);
     }
     
-    #icon_debug2 {
-        left: calc(35% - 8px);
+    #icon_crd_comm {
+        left: calc(65% - 8px);
     }
     
     #icon_plug {

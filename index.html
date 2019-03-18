@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>MAP Indication</title>
     <link rel="stylesheet" href="./style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <link rel="shortcut icon" href="./favicon.png" type="image/x-icon">
 </head>
 <body>
@@ -27,13 +27,13 @@
     </p>
     <div id="map_container">
         <div id="map_board_wrapper">
-            <i id="icon_debug1" class="icon fa fa-microchip"> 1</i>
-            <i id="icon_debug2" class="icon fa fa-microchip"> 2</i>
+            <i id="icon_crd_app" class="icon fas fa-exclamation-triangle"></i>
+            <i id="icon_crd_comm" class="icon fas fa-exchange-alt"></i>
             <i id="icon_plug" class="icon fa fa-power-off"></i>
-            <i id="icon_bluetooth" class="icon fa fa-bluetooth"></i>
+            <i id="icon_bluetooth" class="icon fab fa-bluetooth"></i>
             <i id="icon_cloud" class="icon fa fa-cloud"></i>
-            <img src="./led_off.svg" alt="ground" id="coord_debug1" class="led coordinator_led">
-            <img src="./led_off.svg" alt="ground" id="coord_debug2" class="led coordinator_led">
+            <img src="./led_off.svg" alt="ground" id="coord_app" class="led coordinator_led">
+            <img src="./led_off.svg" alt="ground" id="coord_comm" class="led coordinator_led">
             <img src="./led_on.svg" alt="ground" id="groud_led" class="led">
             <img src="./led_off.svg" alt="ground" id="status_led1" class="led">
             <img src="./led_off.svg" alt="ground" id="status_led2" class="led">
@@ -136,12 +136,12 @@
         );
 
         const COORD_LED1 = Object.assign(
-            {target: $('#coord_debug1')},
+            {target: $('#coord_app')},
             AbstractLED
         );
 
         const COORD_LED2 = Object.assign(
-            {target: $('#coord_debug2')},
+            {target: $('#coord_comm')},
             AbstractLED
         );
 
