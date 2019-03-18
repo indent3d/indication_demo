@@ -18,17 +18,24 @@ body {
 }
 
 h1,
-.main {
+.main,
+.control_group {
     padding-left: 10%;
 }
 
-.zoom_label {
+.control_group {
+    margin: 6px auto;
+}
+
+.control_label {
     padding: 4px 10px;
+    line-height: 2em;
     background: #f2f2f2;
 }
 
+#identify_on,
 #zoom_in {
-    vertical-align: sub;
+    vertical-align: text-bottom;
 }
 
 #map_container {
@@ -74,7 +81,7 @@ h1,
 
 #coord_debug1,
 #coord_debug2 {
-    top: 40%;
+    top: 50%;
 }
 
 #coord_debug1 {
@@ -88,12 +95,12 @@ h1,
 
 #groud_led {
     left: calc(50% - 27px / 2);
-    top: 60%;
+    top: 33%;
 }
 
 #status_led1,
 #status_led2 {
-    top: 55%;
+    top: 38%;
 }
 
 #status_led1 {
@@ -106,7 +113,7 @@ h1,
 
 #icon_debug1,
 #icon_debug2 {
-    top: 46%;
+    top: 57%;
 }
 
 #icon_debug1 {
@@ -119,17 +126,17 @@ h1,
 
 #icon_plug {
     left: calc(50% - 6px - 2px);
-    top: 67%;
+    top: 40%;
+}
+
+#icon_cloud {
+    left: calc(40% - 6px);
+    top: 45%;
 }
 
 #icon_bluetooth {
-    left: calc(40% - 6px);
-    top: 62%;
-}
-
-#icon_alert {
     left: calc(60% - 6px);
-    top: 62%;
+    top: 45%;
 }
 
 @media screen and (max-width: 600px) {
@@ -154,11 +161,11 @@ h1,
         left: calc(50% - 8px);
     }
     
-    #icon_bluetooth {
+    #icon_cloud {
         left: calc(40% - 8px);
     }
     
-    #icon_alert {
+    #icon_bluetooth {
         left: calc(60% - 8px);
     }
 }

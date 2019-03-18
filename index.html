@@ -12,17 +12,26 @@
 <body>
     <h1>MAP Indication</h1>
     <p class="main">
-        <span>BT Network Status: </span>
-        <select id="status_selector"></select>
-        <label class="zoom_label" for="zoom_in">Zoomed in: <input type="checkbox" id="zoom_in"></label>
+        <div class="control_group">
+            <span>Upper Layer Status (Cloud/GW): </span>
+            <select id="upper_status_selector"></select>
+        </div>
+        <div class="control_group">
+            <span>Lower Layer Status (Bluetooth process): </span>
+            <select id="lower_status_selector"></select>
+        </div>
+        <div class="control_group">
+            <label class="control_label" for="identify_on">Identify ON <input type="checkbox" id="identify_on"></label>
+            <label class="control_label" for="zoom_in">Zoomed in: <input type="checkbox" id="zoom_in"></label>
+        </div>
     </p>
     <div id="map_container">
         <div id="map_board_wrapper">
             <i id="icon_debug1" class="icon fa fa-microchip"> 1</i>
             <i id="icon_debug2" class="icon fa fa-microchip"> 2</i>
-            <i id="icon_plug" class="icon fa fa-plug"></i>
+            <i id="icon_plug" class="icon fa fa-power-off"></i>
             <i id="icon_bluetooth" class="icon fa fa-bluetooth"></i>
-            <i id="icon_alert" class="icon fa fa-exclamation-triangle"></i>
+            <i id="icon_cloud" class="icon fa fa-cloud"></i>
             <img src="./led_off.svg" alt="ground" id="coord_debug1" class="led coordinator_led">
             <img src="./led_off.svg" alt="ground" id="coord_debug2" class="led coordinator_led">
             <img src="./led_on.svg" alt="ground" id="groud_led" class="led">
@@ -41,9 +50,12 @@
     </script>
     </script>
     <script>
-        const STATUSES = {
-            OFF: 0,
+        const LED_ON  = '----------';
+        const LED_OFF  = '__________';
+        const LED_FAST_BLINK  = '-_-_-_-_-_';
+        const LED_SLOW_BLINK  = '---------_';
 
+        const LAYER_STATUSES = {
             BOOTING: 1,
             CONNECTING: 2,
             CONNECTED: 3,
@@ -53,27 +65,37 @@
             INCOMPATIBLE: 31,
 
             IDENTIFY: 99,
+            NO_ERROR: 100,
         };
 
-        const ERROR_STATUSES = [
-            STATUSES.DISCONNECTED,
-            STATUSES.INCOMPATIBLE,
-        ];
+        const LAYER_STATUSES_PATTERNS = {};
+        LAYER_STATUSES_PATTERNS[LAYER_STATUSES.BOOTING] = LED_FAST_BLINK;
+        LAYER_STATUSES_PATTERNS[LAYER_STATUSES.CONNECTING] = LED_FAST_BLINK;
+        LAYER_STATUSES_PATTERNS[LAYER_STATUSES.CONNECTED] = LED_ON;
+        LAYER_STATUSES_PATTERNS[LAYER_STATUSES.DISCOVERING] = LED_FAST_BLINK;
+        LAYER_STATUSES_PATTERNS[LAYER_STATUSES.DISCONNECTED] = LED_FAST_BLINK;
+        LAYER_STATUSES_PATTERNS[LAYER_STATUSES.INCOMPATIBLE] = LED_SLOW_BLINK;
+        LAYER_STATUSES_PATTERNS[LAYER_STATUSES.NO_ERROR] = LED_ON;
 
-        const BLINK_PATTERNS = {};
-        BLINK_PATTERNS[STATUSES.OFF] =               '__________';
-        BLINK_PATTERNS[STATUSES.BOOTING] =           '-_-_-_-_-_';
-        BLINK_PATTERNS[STATUSES.CONNECTING] =        '-_-_-_-_-_';
-        BLINK_PATTERNS[STATUSES.CONNECTED] =         '---------_';
-        BLINK_PATTERNS[STATUSES.DISCOVERING] =       '-_-_-_-_-_';
-        BLINK_PATTERNS[STATUSES.DISCONNECTED] =      '-_-_-_-_-_';
-        BLINK_PATTERNS[STATUSES.INCOMPATIBLE] =      '-_-_-_-_-_';
+        const BT_PROCESS_STATUSES = {
+            ON: 1,
+            OFF: 0,
+        };
+
+        const BT_STATUSES_PATTERNS = {};
+        BT_STATUSES_PATTERNS[BT_PROCESS_STATUSES.OFF] = LED_FAST_BLINK;
+        BT_STATUSES_PATTERNS[BT_PROCESS_STATUSES.ON] = LED_ON;
 
         const LED_SUFFIX_ON = '_on';
         const LED_SUFFIX_OFF = '_off';
 
         var current_frame = 0;
-        var current_status = STATUSES.OFF;
+        var UPPER_STATUS_NAME = '_upper';
+        var LOWER_STATUS_NAME = '_lower';
+        var current_status = {};
+        current_status[UPPER_STATUS_NAME] = LAYER_STATUSES.BOOTING;
+        current_status[LOWER_STATUS_NAME] = BT_PROCESS_STATUSES.ON;
+        var pre_identify_status = current_status[UPPER_STATUS_NAME];
 
         var map_container = $('#map_container');
         var map_board_wrapper = $('#map_board_wrapper');
@@ -123,17 +145,17 @@
             AbstractLED
         );
 
-        const init_status_selector = function(target, statuses) {
+        const init_status_selector = function(target, statuses, status_name) {
             let selector = $(target);
-            for (status in STATUSES) {
+            for (status in statuses) {
                 let option = $('<option>');
                 option.text(status.toString());
-                option.attr('value', STATUSES[status]);
+                option.attr('value', statuses[status]);
                 option = option.get(0);
                 selector.append(option);
             };
             selector.on('change', function() {
-                current_status = parseInt($(this).val());
+                current_status[status_name] = parseInt($(this).val());
             });
         };
 
@@ -146,14 +168,29 @@
                 } else {
                     zoom_target.removeClass('zoomed');
                 }
-                console.log('zoom-zoom');
+            });
+        };
+
+        const init_identify = function(target, upper_status_selector) {
+            let identify_checkbox = $(target);
+            let status_selector = $(upper_status_selector);
+            identify_checkbox.on('change', function() {
+                if (identify_checkbox.is(':checked')) {
+                    pre_identify_status = current_status[UPPER_STATUS_NAME];
+                    current_status[UPPER_STATUS_NAME] = LAYER_STATUSES.IDENTIFY;
+                    status_selector.val(LAYER_STATUSES.IDENTIFY);
+
+                } else {
+                    current_status[UPPER_STATUS_NAME] = pre_identify_status;
+                    status_selector.val(pre_identify_status);
+                }
             });
         };
 
         const draw_frame = function() {
             // console.log('Frame', current_frame + 1);
             current_frame++;
-            if (current_status == STATUSES.IDENTIFY) {
+            if (current_status[UPPER_STATUS_NAME] == LAYER_STATUSES.IDENTIFY) {
                 current_frame = current_frame % 20;
                 if (current_frame % 5 > 2) {
                     STATUS_LED1.on();
@@ -165,41 +202,37 @@
                 return;
             } else {
                 current_frame = current_frame % 10;
+                $('#identify_on').prop('checked', false);
             }
 
-            if (ERROR_STATUSES.includes(current_status)) {
-                let current_pattern = BLINK_PATTERNS[current_status];
-                if (current_pattern[current_frame] == '-') {
-                    STATUS_LED2.on();
-                } else {
-                    STATUS_LED2.off();
-                };
-                current_pattern = BLINK_PATTERNS[parseInt(current_status / 10)];
-                if (current_pattern[current_frame] == '-') {
-                    STATUS_LED1.on();
-                } else {
-                    STATUS_LED1.off();
-                };
+            let current_upper_pattern = LAYER_STATUSES_PATTERNS[current_status[UPPER_STATUS_NAME]];
+            if (current_upper_pattern[current_frame] == '-') {
+                STATUS_LED1.on();
             } else {
-                let current_pattern = BLINK_PATTERNS[current_status];
-                if (current_pattern[current_frame] == '-') {
-                    STATUS_LED1.on();
-                } else {
-                    STATUS_LED1.off();
-                };
+                STATUS_LED1.off();
+            };
+
+            let current_lower_pattern = BT_STATUSES_PATTERNS[current_status[LOWER_STATUS_NAME]];
+            if (current_lower_pattern[current_frame] == '-') {
+                STATUS_LED2.on();
+            } else {
                 STATUS_LED2.off();
-            }
+            };
         };
 
         $(document).ready(function() {
-            main()
+            main();
         });
 
         const main = function() {
-            let status_selector = $('#status_selector').get(0);
+            let upper_status_selector = $('#upper_status_selector').get(0);
+            init_status_selector(upper_status_selector, LAYER_STATUSES, UPPER_STATUS_NAME);
+            let lower_status_selector = $('#lower_status_selector').get(0);
+            init_status_selector(lower_status_selector, BT_PROCESS_STATUSES, LOWER_STATUS_NAME);
             let zoom_checkbox = $('#zoom_in').get(0);
-            init_status_selector(status_selector, STATUSES);
             init_zoom(zoom_checkbox, map_board_wrapper);
+            let identify_checkbox = $('#identify_on').get(0);
+            init_identify(identify_checkbox, upper_status_selector);
             setInterval(draw_frame, 100);
         };
     </script>
