@@ -1,6 +1,6 @@
 # Indication demo
 
-Interactive demo page: https://ytupychak.github.io/indication_demo/
+Interactive demo page: https://indent3d.github.io/indication_demo/
 
 ## License
 
